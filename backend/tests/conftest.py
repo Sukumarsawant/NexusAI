@@ -51,6 +51,9 @@ def mock_gemini_for_unit_tests(monkeypatch):
             if "sufficient" in prompt.lower():
                 return '{"sufficient": true, "reason": "Sufficient context found."}', 20, 10
             if "intent" in prompt.lower():
+                import re
+                if re.search(r"\b(hello|hi|hey|good morning|good evening)\b", prompt.lower()):
+                    return '{"intent": "general_conversation", "question_type": "conversational", "entities": [], "needs_retrieval": false, "rewritten_query": ""}', 20, 15
                 return '{"intent": "factual_inquiry", "question_type": "analytical", "entities": ["compliance"], "needs_retrieval": true, "rewritten_query": "search query"}', 30, 25
             if "reasoning_draft" in prompt.lower():
                 return '{"reasoning_draft": "Verified draft answer grounded in evidence.", "contradictions": []}', 40, 20

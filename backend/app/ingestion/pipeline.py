@@ -67,7 +67,12 @@ class IngestionPipeline:
                     batch_embeddings = gemini_service.generate_embeddings(batch)
                     embeddings.extend(batch_embeddings)
             else:
-                logger.warning("GEMINI_API_KEY is not configured; using fallback zero embeddings for testing.")
+                if settings.ENVIRONMENT == "production" and not os.environ.get("TESTING"):
+                    raise RuntimeError(
+                        "GEMINI_API_KEY is not configured in production environment. "
+                        "Refusing to ingest document with silent zero embeddings."
+                    )
+                logger.warning("GEMINI_API_KEY is not configured; using fallback zero embeddings for local test/dev only.")
                 embeddings = [[0.0] * settings.EMBEDDING_DIMENSION for _ in chunk_texts]
 
             # 4. Save chunks in database

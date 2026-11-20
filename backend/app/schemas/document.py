@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 
@@ -15,9 +15,7 @@ class DocumentResponse(BaseModel):
     doc_metadata: Dict[str, Any]
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentChunkResponse(BaseModel):
@@ -27,9 +25,7 @@ class DocumentChunkResponse(BaseModel):
     content: str
     chunk_metadata: Dict[str, Any]
     created_at: datetime
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ReindexResponse(BaseModel):

@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 
@@ -18,9 +18,7 @@ class EvaluationResultItem(BaseModel):
     context_precision: Optional[float]
     context_recall: Optional[float]
     retrieved_contexts: List[str]
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EvaluationRunResponse(BaseModel):
@@ -35,6 +33,4 @@ class EvaluationRunResponse(BaseModel):
     status: str
     created_at: datetime
     results: Optional[List[EvaluationResultItem]] = None
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -42,17 +42,21 @@ class MetricsAggregator:
         }
 
     @staticmethod
-    def get_agent_performance(db: Session) -> List[Dict[str, Any]]:
+    def get_agent_performance(db: Session, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Aggregates performance by agent name: execution count, average latency, tokens, error rates.
+        Filtered by tenant user_id when provided.
         """
-        results = db.query(
+        query = db.query(
             AgentTrace.agent_name,
             func.count(AgentTrace.id).label("call_count"),
             func.avg(AgentTrace.duration_ms).label("avg_duration"),
             func.avg(AgentTrace.input_tokens + AgentTrace.output_tokens).label("avg_tokens"),
             func.sum(case((AgentTrace.status == "error", 1), else_=0)).label("errors")
-        ).group_by(AgentTrace.agent_name).all()
+        )
+        if user_id:
+            query = query.filter(AgentTrace.user_id == user_id)
+        results = query.group_by(AgentTrace.agent_name).all()
 
         perf = []
         for row in results:
@@ -73,12 +77,18 @@ class MetricsAggregator:
         return perf
 
     @staticmethod
-    def get_recent_traces(db: Session, limit: int = 50) -> List[AgentTrace]:
-        return db.query(AgentTrace).order_by(AgentTrace.created_at.desc()).limit(limit).all()
+    def get_recent_traces(db: Session, user_id: Optional[str] = None, limit: int = 50) -> List[AgentTrace]:
+        query = db.query(AgentTrace)
+        if user_id:
+            query = query.filter(AgentTrace.user_id == user_id)
+        return query.order_by(AgentTrace.created_at.desc()).limit(limit).all()
 
     @staticmethod
-    def get_latency_trend(db: Session, limit: int = 20) -> List[Dict[str, Any]]:
-        metrics = db.query(RequestMetric).order_by(RequestMetric.created_at.desc()).limit(limit).all()
+    def get_latency_trend(db: Session, user_id: Optional[str] = None, limit: int = 20) -> List[Dict[str, Any]]:
+        query = db.query(RequestMetric)
+        if user_id:
+            query = query.filter(RequestMetric.user_id == user_id)
+        metrics = query.order_by(RequestMetric.created_at.desc()).limit(limit).all()
         trend = []
         for m in reversed(metrics):
             trend.append({

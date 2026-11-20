@@ -62,9 +62,19 @@ def query_understanding_agent(state: NexusAgentState) -> Dict[str, Any]:
             logger.warning(f"Query Understanding Agent LLM fallback: {e}")
             # Heuristic fallback
             lowered = query.lower()
-            if any(greeting in lowered for greeting in ["hello", "hi", "hey", "who are you"]):
+            import re
+            if re.search(r"\b(hello|hi|hey|who are you|good morning|good evening)\b", lowered):
                 needs_retrieval = False
                 intent = "general_conversation"
+                question_type = "conversational"
+    else:
+        # Heuristic fallback when LLM service is not configured
+        lowered = query.lower()
+        import re
+        if re.search(r"\b(hello|hi|hey|who are you|good morning|good evening)\b", lowered):
+            needs_retrieval = False
+            intent = "general_conversation"
+            question_type = "conversational"
 
     duration_ms = round((time.time() - start_time) * 1000, 2)
     traces.append({

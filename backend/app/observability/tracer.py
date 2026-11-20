@@ -61,15 +61,17 @@ class ObservabilityService:
         request_id: str,
         conversation_id: Optional[str],
         traces: List[Dict[str, Any]],
-        model_name: Optional[str] = "gemini-2.5-flash",
+        model_name: Optional[str] = "gemini-3.5-flash",
+        user_id: Optional[str] = None,
     ) -> None:
         """
-        Persist structured traces for each multi-agent node execution.
+        Persist structured traces for each multi-agent node execution with tenant isolation.
         """
         for t in traces:
             trace_obj = AgentTrace(
                 request_id=request_id,
                 conversation_id=conversation_id,
+                user_id=user_id,
                 agent_name=t.get("agent_name", "Unknown Agent"),
                 execution_order=t.get("execution_order", 1),
                 duration_ms=t.get("duration_ms", 0.0),

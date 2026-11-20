@@ -109,6 +109,7 @@ def chat_endpoint(
         request_id=request_id,
         conversation_id=conv.id,
         traces=traces,
+        user_id=current_user.id,
     )
 
     return ChatResponse(

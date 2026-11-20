@@ -27,6 +27,7 @@ class AgentTrace(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     request_id = Column(String(64), index=True, nullable=False)
     conversation_id = Column(String(36), index=True, nullable=True)
+    user_id = Column(String(36), index=True, nullable=True)
     agent_name = Column(String(100), nullable=False)
     execution_order = Column(Integer, default=1, nullable=False)
     duration_ms = Column(Float, nullable=False)

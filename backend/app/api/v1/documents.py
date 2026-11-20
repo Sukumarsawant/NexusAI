@@ -26,8 +26,12 @@ async def upload_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # 1. Validate file extension
-    filename = file.filename or "unknown"
+    # 1. Validate and sanitize filename (prevents directory traversal attacks)
+    raw_filename = file.filename or "unknown"
+    filename = os.path.basename(raw_filename).strip()
+    if not filename or filename in {".", ".."}:
+        filename = f"upload_{uuid.uuid4().hex[:8]}.txt"
+
     _, ext = os.path.splitext(filename.lower())
     if ext not in SUPPORTED_EXTENSIONS:
         raise HTTPException(
@@ -35,14 +39,29 @@ async def upload_document(
             detail=f"Unsupported file format '{ext}'. Allowed: PDF, TXT, MD, CSV.",
         )
 
-    # 2. Read bytes & check size limit
-    content_bytes = await file.read()
-    file_size = len(content_bytes)
+    # 2. Stream read bytes with maximum file size limit enforcement (DoS prevention)
     max_bytes = settings.MAX_FILE_SIZE_MB * 1024 * 1024
-    if file_size > max_bytes:
+    chunk_size_read = 64 * 1024  # 64 KB chunks
+    content_chunks = []
+    file_size = 0
+
+    while True:
+        chunk = await file.read(chunk_size_read)
+        if not chunk:
+            break
+        file_size += len(chunk)
+        if file_size > max_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File exceeds maximum allowed size of {settings.MAX_FILE_SIZE_MB}MB.",
+            )
+        content_chunks.append(chunk)
+
+    content_bytes = b"".join(content_chunks)
+    if not content_bytes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File exceeds maximum allowed size of {settings.MAX_FILE_SIZE_MB}MB.",
+            detail="Uploaded file is empty.",
         )
 
     # 3. Duplicate detection via SHA-256 content hash per user

@@ -36,7 +36,7 @@ app = FastAPI(
 # CORS configuration for modern frontend applications
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows Vite dev server & production origins
+    allow_origins=settings.ALLOWED_ORIGINS,  # Strictly configured origins (replaces insecure wildcard with credentials)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

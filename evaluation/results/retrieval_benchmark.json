@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-11-20T19:13:01Z",
+  "benchmark_queries_count": 7,
+  "corpus_documents_count": 5,
+  "retrieval_metrics": {
+    "vector": {
+      "avg_latency_ms": 10.21,
+      "recall@1": 0.4286,
+      "recall@3": 0.7143,
+      "recall@5": 0.7143,
+      "precision@1": 0.4286,
+      "precision@3": 0.2381,
+      "precision@5": 0.1429,
+      "mrr": 0.6122
+    },
+    "keyword": {
+      "avg_latency_ms": 4.06,
+      "recall@1": 0.7143,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "precision@1": 0.7143,
+      "precision@3": 0.3333,
+      "precision@5": 0.2,
+      "mrr": 0.8571
+    },
+    "hybrid_rrf": {
+      "avg_latency_ms": 10.01,
+      "recall@1": 0.5714,
+      "recall@3": 0.8571,
+      "recall@5": 1.0,
+      "precision@1": 0.5714,
+      "precision@3": 0.2857,
+      "precision@5": 0.2,
+      "mrr": 0.719
+    }
+  },
+  "ragas_evaluation": {
+    "mean_faithfulness": 0.7957,
+    "mean_answer_relevancy": 0.5,
+    "dataset_sample_size": 7
+  }
+}

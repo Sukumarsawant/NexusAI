@@ -25,7 +25,7 @@ def get_agent_metrics(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    data = MetricsAggregator.get_agent_performance(db=db)
+    data = MetricsAggregator.get_agent_performance(db=db, user_id=current_user.id)
     return [AgentPerformance(**item) for item in data]
 
 
@@ -35,7 +35,7 @@ def get_traces(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    traces = MetricsAggregator.get_recent_traces(db=db, limit=limit)
+    traces = MetricsAggregator.get_recent_traces(db=db, user_id=current_user.id, limit=limit)
     return [TraceItem.model_validate(t) for t in traces]
 
 
@@ -45,9 +45,9 @@ def get_full_metrics(
     db: Session = Depends(get_db),
 ):
     overview_data = MetricsAggregator.get_overview(db=db, user_id=current_user.id)
-    agents_data = MetricsAggregator.get_agent_performance(db=db)
-    traces = MetricsAggregator.get_recent_traces(db=db, limit=30)
-    latency_trend = MetricsAggregator.get_latency_trend(db=db, limit=20)
+    agents_data = MetricsAggregator.get_agent_performance(db=db, user_id=current_user.id)
+    traces = MetricsAggregator.get_recent_traces(db=db, user_id=current_user.id, limit=30)
+    latency_trend = MetricsAggregator.get_latency_trend(db=db, user_id=current_user.id, limit=20)
 
     return MetricsResponse(
         overview=MetricOverview(**overview_data),

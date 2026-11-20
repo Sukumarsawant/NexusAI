@@ -29,6 +29,12 @@ def vector_search(
             embeddings = gemini_service.generate_embeddings([query_text])
             query_vector = embeddings[0] if embeddings else [0.0] * settings.EMBEDDING_DIMENSION
         else:
+            import os
+            if settings.ENVIRONMENT == "production" and not os.environ.get("TESTING"):
+                raise RuntimeError(
+                    "GEMINI_API_KEY is not configured in production environment. "
+                    "Refusing to execute vector retrieval with zero query vectors."
+                )
             query_vector = [0.0] * settings.EMBEDDING_DIMENSION
 
     is_postgres = "postgresql" in settings.DATABASE_URL.lower()
